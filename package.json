@@ -16,7 +16,7 @@
   },
   "scripts": {
     "start": "node ./main.js",
-    "build": "tsc",
+    "install": "tsc",
     "test": "mocha \"./tests/*.test.js\""
   },
   "author": "quelqun007"
