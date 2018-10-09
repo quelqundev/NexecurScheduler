@@ -29,40 +29,40 @@ describe('DatabaseContext', function () {
     });
 });
 
-describe('NoplanningDate fonctions', function () {
-    describe('#isAnNoplanningDate()', function () {
-        it('should identify correctly if a date exist in database', function (done) {
-            DatabaseContext.createContext();    //database init
+// describe('NoplanningDate fonctions', function () {
+//     describe('#isAnNoplanningDate()', function () {
+//         it('should identify correctly if a date exist in database', function (done) {
+//             DatabaseContext.createContext();    //database init
 
-            let a: NoplanningDate = new NoplanningDate(new Date().getFullYear(), new Date().getMonth() + 1, new Date().getDate());
+//             let a: NoplanningDate = new NoplanningDate(new Date().getFullYear(), new Date().getMonth() + 1, new Date().getDate());
 
-            a.saveInDatabase();
+//             a.saveInDatabase();
 
-            NoplanningDate.isTodayANoplanningDate((isAnNoplanningDate) => {
-                console.log(isAnNoplanningDate);
-                if (isAnNoplanningDate == true) {
-                    done();
-                } else {
-                    done("Incorrect identification");
-                }
-            });
-        });
+//             NoplanningDate.isTodayANoplanningDate((isAnNoplanningDate) => {
+//                 console.log(isAnNoplanningDate);
+//                 if (isAnNoplanningDate == true) {
+//                     done();
+//                 } else {
+//                     done("Incorrect identification");
+//                 }
+//             });
+//         });
 
-        it('should identify correctly if a date dont exist in database', function (done) {
-            DatabaseContext.createContext();    //database init
+//         it('should identify correctly if a date dont exist in database', function (done) {
+//             DatabaseContext.createContext();    //database init
 
-            let a: NoplanningDate = new NoplanningDate(new Date().getFullYear(), new Date().getMonth() + 1, new Date().getDate());
+//             let a: NoplanningDate = new NoplanningDate(new Date().getFullYear(), new Date().getMonth() + 1, new Date().getDate());
 
-            a.removeFromDatabase();
+//             a.removeFromDatabase();
 
-            NoplanningDate.isTodayANoplanningDate((isAnNoplanningDate) => {
-                console.log(isAnNoplanningDate);
-                if (isAnNoplanningDate == true) {
-                    done("Incorrect identification");
-                } else {
-                    done();
-                }
-            });
-        });
-    });
-});
+//             NoplanningDate.isTodayANoplanningDate((isAnNoplanningDate) => {
+//                 console.log(isAnNoplanningDate);
+//                 if (isAnNoplanningDate == true) {
+//                     done("Incorrect identification");
+//                 } else {
+//                     done();
+//                 }
+//             });
+//         });
+//     });
+// });

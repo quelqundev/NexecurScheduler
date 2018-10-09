@@ -13,7 +13,8 @@ export class NoplanningDate {
     public saveInDatabase() {
         //TODO verifier si existe deja
 
-        let sql = "INSERT INTO NoplanningDates VALUES (DATE('" + this.date.toISOString() + "'))";
+        let datestring = this.date.toISOString().slice(0, 10);
+        let sql = "INSERT INTO NoplanningDates VALUES ('" + datestring + "')";
         console.log(sql);
         DatabaseContext.db.run(sql, (err) => {
             if (err != null) {
@@ -23,7 +24,8 @@ export class NoplanningDate {
     }
 
     public removeFromDatabase() {
-        let sql = "DELETE FROM NoplanningDates WHERE date = DATE('" + this.date.toISOString() + "')";
+        let datestring = this.date.toISOString().slice(0, 10);
+        let sql = "DELETE FROM NoplanningDates WHERE date = '" + datestring + "'";
         console.log(sql);
         DatabaseContext.db.run(sql, (err) => {
             if (err != null) {
@@ -39,13 +41,18 @@ export class NoplanningDate {
 
     public static isTodayANoplanningDate(callback: (isANoplanningDate: boolean) => void) {
         let ret = null;
-        DatabaseContext.db.all("SELECT date FROM NoplanningDates WHERE date = DATE('now', 'localtime')", (err, rows: Array<NoplanningDate>) => {
+
+        let date = new Date();
+        let datestring = date.toISOString().slice(0, 10);
+
+        DatabaseContext.db.all("SELECT date FROM NoplanningDates WHERE date = '" + datestring + "'", (err, rows: Array<NoplanningDate>) => {
             rows.forEach((row) => { console.log(row.date) });
             if (rows.length > 0) {
                 console.log("today exist in databse");
                 callback(true);
             } else {
                 console.log("today dont exist in databse");
+                console.log(datestring);
                 callback(false);
             }
         });
