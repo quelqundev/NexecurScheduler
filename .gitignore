@@ -6,4 +6,7 @@ package-lock.json
 /logs
 
 #ignore JS files
-main.js
+*.js
+
+#ignore database
+database.db
