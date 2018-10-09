@@ -12,7 +12,7 @@ describe('DatabaseContext', function () {
                 let initialnumber = rows.length;
 
                 //try to save date
-                let test: NoplanningDate = new NoplanningDate();
+                let test: NoplanningDate = new NoplanningDate(1995, 4, 13);
                 test.saveInDatabase();
                 //verifiy
                 NoplanningDate.getAllNoplanningDates((err, rows) => {

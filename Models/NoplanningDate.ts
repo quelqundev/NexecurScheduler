@@ -3,8 +3,8 @@ import { DatabaseContext } from "./DatabaseContext";
 export class NoplanningDate {
     date: Date;
 
-    constructor() {
-        this.date = new Date(1995, 4 - 1, 13 + 1);    //index du mois (0-11) et jour (1-31)
+    constructor(year : number, month:number, day: number) {
+        this.date = new Date(year, month - 1, day + 1);    //index du mois (0-11) et jour (1-31)
     }
 
     /**
