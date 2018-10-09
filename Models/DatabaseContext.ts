@@ -18,7 +18,7 @@ export class DatabaseContext {
 
     DatabaseContext.db.serialize(function () {
       // These two queries will run sequentially.
-      DatabaseContext.db.run("CREATE TABLE IF NOT EXISTS NoplanningDates (date TEXT)", (err) => {
+      DatabaseContext.db.run("CREATE TABLE IF NOT EXISTS NoplanningDates (id integer PRIMARY KEY, date TEXT)", (err) => {
         if (err != null) {
           console.error(err);
         }
