@@ -12,7 +12,7 @@ describe('DatabaseContext', function () {
                 let initialnumber = rows.length;
 
                 //try to save date
-                let test: NoplanningDate = new NoplanningDate(1995, 4, 13);
+                let test: NoplanningDate = new NoplanningDate(new Date(1995, 4 - 1, 13 + 1));
                 test.saveInDatabase();
                 //verifiy
                 NoplanningDate.getAllNoplanningDates((err, rows) => {
@@ -34,7 +34,7 @@ describe('DatabaseContext', function () {
 //         it('should identify correctly if a date exist in database', function (done) {
 //             DatabaseContext.createContext();    //database init
 
-//             let a: NoplanningDate = new NoplanningDate(new Date().getFullYear(), new Date().getMonth() + 1, new Date().getDate());
+//             let a: NoplanningDate = new NoplanningDate(new Date());
 
 //             a.saveInDatabase();
 
@@ -51,7 +51,7 @@ describe('DatabaseContext', function () {
 //         it('should identify correctly if a date dont exist in database', function (done) {
 //             DatabaseContext.createContext();    //database init
 
-//             let a: NoplanningDate = new NoplanningDate(new Date().getFullYear(), new Date().getMonth() + 1, new Date().getDate());
+//             let a: NoplanningDate = new NoplanningDate(new Date());
 
 //             a.removeFromDatabase();
 

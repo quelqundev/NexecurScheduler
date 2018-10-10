@@ -3,8 +3,8 @@ import { DatabaseContext } from "./DatabaseContext";
 export class NoplanningDate {
     date: Date;
 
-    constructor(year: number, month: number, day: number) {
-        this.date = new Date(year, month - 1, day + 1);    //index du mois (0-11) et jour (1-31)
+    constructor(date:Date) {
+        this.date = date;    //index du mois (0-11) et jour (1-31)
     }
 
     /**
@@ -58,39 +58,4 @@ export class NoplanningDate {
         });
     }
 }
-
-
-// let sql = `SELECT DISTINCT Name name FROM playlists
-//            ORDER BY name`;
-
-// db.all(sql, [], (err, rows) => {
-//   if (err) {
-//     throw err;
-//   }
-//   rows.forEach((row) => {
-//     console.log(row.name);
-//   });
-// });
-
-// // close the database connection
-// db.close();
-
-// let db = new sqlite3.Database('../db/chinook.db');
-
-// let sql = `SELECT FirstName firstName,
-//                   LastName lastName,
-//                   Email email
-//             FROM customers
-//             WHERE Country = ?
-//             ORDER BY FirstName`;
-
-// db.each(sql, ['USA'], (err, row) => {
-//   if (err) {
-//     throw err;
-//   }
-//   console.log(`${row.firstName} ${row.lastName} - ${row.email}`);
-// });
-
-// // close the database connection
-// db.close();
 
