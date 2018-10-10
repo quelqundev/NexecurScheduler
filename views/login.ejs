@@ -1,21 +1,39 @@
-<% var title = 'Authentication Example' %>
-<% include head %>
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Authentication</title>
+  <meta charset="UTF-8">
+  <style>
+    body {
+      padding: 50px;
+      font: 13px Helvetica, Arial, sans-serif;
+    }
+    .error {
+      color: red
+    }
+    .success {
+      color: green;
+    }
+  </style>
+</head>
+<body>
 
-<h1>Login</h1>
+<h1>Connexion</h1>
 <%- message %>
-Try accessing <a href="/restricted">/restricted</a>, then authenticate with "tj" and "foobar".
+<a>Connectez-vous pour accéder au calendrier</a>.
 <form method="post" action="/login">
   <p>
-    <label>Username:</label>
+    <label>Utilisateur:</label>
     <input type="text" name="username">
   </p>
   <p>
-    <label>Password:</label>
+    <label>Mot de passe:</label>
     <input type="text" name="password">
   </p>
   <p>
-    <input type="submit" value="Login">
+    <input type="submit" value="Connexion">
   </p>
 </form>
 
-<% include foot %>
+</body>
+</html>
