@@ -2,6 +2,7 @@ import { AlarmStatus } from "./Nexecur-Unofficial-API/Models/AlarmStatus";
 import { NexecurAPI } from "./Nexecur-Unofficial-API/Controllers/NexecurAPI";
 import { DatabaseContext } from "./Models/DatabaseContext";
 import { NoplanningDate } from "./Models/NoplanningDate";
+import { UserDatabase } from "./Models/UserDatabase";
 
 /******************************************************************************/
 /*                              TASK SCHEDULER                                */
@@ -60,7 +61,6 @@ var schedule = require('node-schedule');
 /*                              SERVER CONFIG                                 */
 /******************************************************************************/
 var express = require('express');
-var hash = require('pbkdf2-password')()
 var path = require('path');
 var session = require('express-session');
 
@@ -90,37 +90,6 @@ app.use(function (req, res, next) {
     next();
 });
 
-// dummy database
-var users = {
-    tj: { name: 'tj' }
-};
-
-// when you create a user, generate a salt
-// and hash the password ('foobar' is the pass here)
-hash({ password: 'foobar' }, function (err, pass, salt, hash) {
-    if (err) throw err;
-    // store the salt & hash in the "db"
-    users.tj['salt'] = salt;
-    users.tj['hash'] = hash;
-});
-
-
-// Authenticate using our plain-object database of doom!
-function authenticate(name, pass, fn) {
-    if (!module.parent) console.log('authenticating %s:%s', name, pass);
-    var user = users[name];
-    // query the db for the given username
-    if (!user) return fn(new Error('cannot find user'));
-    // apply the same algorithm to the POSTed password, applying
-    // the hash against the pass / salt, if there is a match we
-    // found the user
-    hash({ password: pass, salt: user.salt }, function (err, pass, salt, hash) {
-        if (err) return fn(err);
-        if (hash === user.hash) return fn(null, user)
-        fn(new Error('invalid password'));
-    });
-}
-
 function restrict(req, res, next) {
     if (req.session.user) {
         next();
@@ -141,13 +110,13 @@ app.get('/restricted', restrict, function (req, res) {
 });
 
 app.post('/date', restrict, function (req, res) {
-    let noplanningdate:NoplanningDate = new NoplanningDate(new Date(req.body.date));
+    let noplanningdate: NoplanningDate = new NoplanningDate(new Date(req.body.date));
     noplanningdate.saveInDatabase();
     res.redirect('/restricted');
 });
 
 app.post('/deletedate', restrict, function (req, res) {
-    let noplanningdate:NoplanningDate = new NoplanningDate(new Date(req.body.date));
+    let noplanningdate: NoplanningDate = new NoplanningDate(new Date(req.body.date));
     noplanningdate.removeFromDatabase();
     res.redirect('/restricted');
 });
@@ -165,7 +134,7 @@ app.get('/login', function (req, res) {
 });
 
 app.post('/login', function (req, res) {
-    authenticate(req.body.username, req.body.password, function (err, user) {
+    UserDatabase.authenticate(req.body.username, req.body.password, function (err, user) {
         if (user) {
             // Regenerate session when signing in
             // to prevent fixation
@@ -181,19 +150,22 @@ app.post('/login', function (req, res) {
             });
         } else {
             req.session.error = 'Authentication failed, please check your '
-                + ' username and password.'
-                + ' (use "tj" and "foobar")';
+                + ' username and password.';
             res.redirect('/login');
         }
     });
 });
 
 /* istanbul ignore next */
-if (!module.parent) {
-    app.listen(80);
-    console.log('Express started on port 80');
-    DatabaseContext.createContext();
-    console.log('Database context created');
-}
+// users database
+new UserDatabase().init(() => {
+    if (!module.parent) {
+        app.listen(80);
+        console.log('Express started on port 80');
+        DatabaseContext.createContext();
+        console.log('Database context created');
+    }
+});
+
 
 
