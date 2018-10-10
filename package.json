@@ -11,8 +11,7 @@
     "path": "^0.12.7",
     "pbkdf2-password": "^1.2.1",
     "simple-node-logger": "^0.93.40",
-    "sqlite3": "^4.0.2",
-    "bower": "^1.8.4"
+    "sqlite3": "^4.0.2"
   },
   "devDependencies": {
     "@types/mocha": "^5.2.5",
@@ -22,7 +21,7 @@
   },
   "scripts": {
     "start": "node ./main.js",
-    "install": "tsc && node_modules/bower/bin/bower install clndr",
+    "install": "tsc",
     "test": "mocha \"./tests/*.test.js\""
   },
   "author": "quelqun007"
