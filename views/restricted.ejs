@@ -8,7 +8,12 @@
 <ul>
   <% dates.forEach(function(noplanningdate) { %>
   <li>
-    <%= noplanningdate.date %>
+      <form action="/deletedate" method="post">
+        <p>
+          <input type="text" name="date" readonly value=<%= noplanningdate.date %>>
+          <input type="submit" value="Delete">
+        </p>
+      </form>
   </li>
   <% }); %>
 </ul>
@@ -22,4 +27,5 @@
     <input type="submit" value="Valider">
   </p>
 </form>
+
 <% include foot %>

@@ -146,6 +146,12 @@ app.post('/date', restrict, function (req, res) {
     res.redirect('/restricted');
 });
 
+app.post('/deletedate', restrict, function (req, res) {
+    let noplanningdate:NoplanningDate = new NoplanningDate(new Date(req.body.date));
+    noplanningdate.removeFromDatabase();
+    res.redirect('/restricted');
+});
+
 app.get('/logout', function (req, res) {
     // destroy the user's session to log them out
     // will be re-created next request
