@@ -1,0 +1,14 @@
+<% var title = 'Calendrier' %>
+<% include head %>
+
+<h1>Liste des dates</h1>
+<%- message %>
+
+
+<ul>
+  <% dates.forEach(function(noplanningdate) { %>
+      <li><%= noplanningdate.date %></li>
+  <% }); %>
+</ul>
+
+<% include foot %>
