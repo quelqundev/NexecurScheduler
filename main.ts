@@ -21,40 +21,113 @@ var schedule = require('node-schedule');
 // const log = require('simple-node-logger').createRollingFileLogger( opts );
 // log.info('Alarme activée');  //trace, debug, info, warn, error and fatal
 
-/* ACTIVATION ALARME
-    1 - verifier alarme est désactivée
-        1.1 - si alarme deja activée, alors notifier propriétaire ? et ne pas activer alarme (aller au 3)
-        1.2 - si alarme non activée, alors activer alarme (aller au 2)
-    2 - finalement verifier que l'alarme est activée
-        2.1 - si alarme n'est pas activée, alors notifier propriétaire (aller au 3)
-    3 - terminer
-*/
+/**
+ * Alarm activation task
+ */
+let activationSchedule = schedule.scheduleJob({ hour: 21 }, function () {
 
-/* DESACTIVATION ALARME
-  1 - verifier alarme est activée
-      1.1 - si alarme non activée, alors notifier propriétaire ? et ne pas activer alarme
-      1.2 - si alarme activée, alors désactiver alarme
-  2 - finalement verifier que l'alarme est désactivée
-      2.1 - si alarme n'est pas désactivée, alors notifier propriétaire (aller au 3)
-  3 - terminer
-*/
+    let postcheckCallback = (status: AlarmStatus) => {
+        switch (status) {
+            case AlarmStatus.Enabled:
+                console.log('Alarme ENABLED');
+                break;
+            case AlarmStatus.Disabled:
+                console.log('Alarm DISABLED');
+                //error : alarm is still not enabled
+                return;
+                break;
+            default:
+                //error : status is not an AlarmStatus
+                break;
+        }
+    };
 
-// var j = schedule.scheduleJob({second: 0}, function(){
-//     NexecurAPI.getAlarmStatus((status: AlarmStatus) => {
-//         switch (status) {
-//             case AlarmStatus.Enabled:
-//                 console.log('Alarme ACTIVEE');
-//                 break;
+    let enableCallback = () => {
+        //Check system status after the try
+        console.log('Checking alarm status...');
+        NexecurAPI.getAlarmStatus(postcheckCallback);
+    };
 
-//             case AlarmStatus.Disabled:
-//                 console.log('Alarme DESACTIVEE');
-//                 break;
+    let precheckCallback = ((status: AlarmStatus) => {
+        switch (status) {
+            case AlarmStatus.Disabled:
+                console.log('Alarm DISABLED');
+                enableCallback();
+                break;
+            case AlarmStatus.Enabled:
+                console.log('Alarm ENABLED');
+                //Specific case : alarm already enabled
+                break;
+            default:
+                //error : status is not an AlarmStatus
+                break;
+        }
+    });
 
-//             default:
-//                 break;
-//         }
-//     });
-//   });
+    //determine if we should activate alarm today or not
+    NoplanningDate.isTodayANoplanningDate((isANoplanningDate: boolean) => {
+        if (isANoplanningDate == true) {
+            //we should not activate the security system
+            console.log("Today is an exception, dont activate alarm");
+        } else {
+            //Check system status before trying to enable
+            console.log('Checking alarm status...');
+            NexecurAPI.getAlarmStatus(precheckCallback);
+        }
+    });
+
+
+});
+
+/**
+ * Alarm desactivation task
+ */
+let desactivationSchedule = schedule.scheduleJob({ hour: 6 }, function () {
+
+    let postcheckCallback = (status: AlarmStatus) => {
+        switch (status) {
+            case AlarmStatus.Disabled:
+                console.log('Alarm DISABLED');
+                break;
+            case AlarmStatus.Enabled:
+                console.log('Alarm still ENABLED...');
+                //error : alarm is still enabled
+                return;
+                break;
+            default:
+                //error : status is not an AlarmStatus
+                break;
+        }
+    };
+
+    let disableCallback = () => {
+        //Check system status after the try
+        console.log('Checking alarm status...');
+        NexecurAPI.getAlarmStatus(postcheckCallback);
+    };
+
+    let precheckCallback = ((status: AlarmStatus) => {
+        switch (status) {
+            case AlarmStatus.Enabled:
+                console.log('Alarme ENABLED');
+                //Try to enable alarm
+                console.log('Trying to activate alarm...');
+                NexecurAPI.disableAlarm(disableCallback);
+                break;
+            case AlarmStatus.Disabled:
+                console.log('Alarm already DISABLED');
+                //Specific case : alarm already disabled
+                break;
+            default:
+                //error : status is not an AlarmStatus
+                break;
+        }
+    });
+
+    //Check system status before trying to enable
+    console.log('Checking alarm status...');
+    NexecurAPI.getAlarmStatus(precheckCallback);
+});
 
 
 /******************************************************************************/
@@ -156,12 +229,14 @@ app.post('/login', function (req, res) {
     });
 });
 
-/* istanbul ignore next */
-// users database
+/* SERVER LAUNCH */
+//load users database
 new UserDatabase().init(() => {
+    //start server
     if (!module.parent) {
         app.listen(80);
         console.log('Express started on port 80');
+        //load Dates database
         DatabaseContext.createContext();
         console.log('Database context created');
     }
