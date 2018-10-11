@@ -70,6 +70,9 @@ var app = module.exports = express();
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
+// allow /src directory to be public
+app.use('/src',  express.static(__dirname + '/views/src'));
+
 // middleware
 app.use(express.urlencoded({ extended: false }))
 app.use(session({
@@ -94,7 +97,7 @@ function restrict(req, res, next) {
     if (req.session.user) {
         next();
     } else {
-        req.session.error = 'Access denied!';
+        req.session.error = 'Accès refusé!';
         res.redirect('/login');
     }
 }
@@ -105,7 +108,7 @@ app.get('/', function (req, res) {
 
 app.get('/restricted', restrict, function (req, res) {
     NoplanningDate.getAllNoplanningDates((err, noplanningdates) => {
-        res.render('restricted', { dates: noplanningdates });
+        res.render('restricted', { arrayDates: noplanningdates });
     });
 });
 
@@ -149,8 +152,8 @@ app.post('/login', function (req, res) {
                 res.redirect('/restricted');
             });
         } else {
-            req.session.error = 'Authentication failed, please check your '
-                + ' username and password.';
+            req.session.error = 'Erreurs lors de la connexion. Vérifiez votre '
+                + ' nom d\'utilisateur et/ou mot de passe.';
             res.redirect('/login');
         }
     });
