@@ -5,16 +5,23 @@ This package aims at scheduling repetitive activation and desactivation of Nexec
 ## Installation
 
 1. `git clone https://github.com/quelqun007/NexecureScheduler.git --recurse-submodules`
+
 2. `npm install`
 
-3. Configure the `config.json` file in the Nexecur-Unofficial-API directory. You should provide the following values:
+3. Configure the `config.json` file. You could provide the following defaults values:
+- `activationHour` : (number 0-23) hour of alarm activation job
+- `activationHour` : (number 0-23) hour of alarm desactivation job
+
+Please note that this configuration is just used at launch time and can be modified by runtime configuration through API.
+
+4. Configure the `config.json` file in the Nexecur-Unofficial-API directory. You should provide the following values:
 - `id_site`
 - `password` (hash)
 - `pin` (hash)
 
-4. Configure users id and password in the `users.json` file.
+5. Configure users id and password in the `users.json` file.
 
-4. `npm start` to run the script
+6. `npm start` to run the script
 
 ## License
 

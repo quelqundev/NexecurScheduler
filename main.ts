@@ -3,6 +3,7 @@ import { NexecurAPI } from "./Nexecur-Unofficial-API/Controllers/NexecurAPI";
 import { DatabaseContext } from "./Models/DatabaseContext";
 import { NoplanningDate } from "./Models/NoplanningDate";
 import { UserDatabase } from "./Models/UserDatabase";
+import { Configuration } from "./Models/Configuration";
 
 /******************************************************************************/
 /*                              TASK SCHEDULER                                */
@@ -21,10 +22,14 @@ var schedule = require('node-schedule');
 // const log = require('simple-node-logger').createRollingFileLogger( opts );
 // log.info('Alarme activée');  //trace, debug, info, warn, error and fatal
 
+var scheduleConfig: Configuration = require('./config.json');
+scheduleConfig.activationHour = scheduleConfig.activationHour || 21;
+scheduleConfig.desactivationHour = scheduleConfig.desactivationHour || 6;
+
 /**
  * Alarm activation task
  */
-let activationSchedule = schedule.scheduleJob({ hour: 21 }, function () {
+let activationSchedule = schedule.scheduleJob({ hour: scheduleConfig.activationHour }, function () {
 
     let postcheckCallback = (status: AlarmStatus) => {
         switch (status) {
@@ -82,7 +87,7 @@ let activationSchedule = schedule.scheduleJob({ hour: 21 }, function () {
 /**
  * Alarm desactivation task
  */
-let desactivationSchedule = schedule.scheduleJob({ hour: 6 }, function () {
+let desactivationSchedule = schedule.scheduleJob({ hour: scheduleConfig.desactivationHour }, function () {
 
     let postcheckCallback = (status: AlarmStatus) => {
         switch (status) {
@@ -144,7 +149,7 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 // allow /src directory to be public
-app.use('/src',  express.static(__dirname + '/views/src'));
+app.use('/src', express.static(__dirname + '/views/src'));
 
 // middleware
 app.use(express.urlencoded({ extended: false }))
@@ -181,7 +186,7 @@ app.get('/', function (req, res) {
 
 app.get('/restricted', restrict, function (req, res) {
     NoplanningDate.getAllNoplanningDates((err, noplanningdates) => {
-        res.render('restricted', { arrayDates: noplanningdates });
+        res.render('restricted', { arrayDates: noplanningdates, scheduleConfig: scheduleConfig });
     });
 });
 
@@ -194,6 +199,20 @@ app.post('/date', restrict, function (req, res) {
 app.post('/deletedate', restrict, function (req, res) {
     let noplanningdate: NoplanningDate = new NoplanningDate(new Date(req.body.date));
     noplanningdate.removeFromDatabase();
+    res.redirect('/restricted');
+});
+
+app.post('/activationhour', restrict, function (req, res) {
+    scheduleConfig.activationHour = req.body.activationhour || scheduleConfig.activationHour;
+    activationSchedule.reschedule({ hour: scheduleConfig.activationHour });
+    console.log("activationHour set to " + scheduleConfig.activationHour);
+    res.redirect('/restricted');
+});
+
+app.post('/desactivationhour', restrict, function (req, res) {
+    scheduleConfig.desactivationHour = req.body.desactivationhour || scheduleConfig.desactivationHour;
+    desactivationSchedule.reschedule({ hour: scheduleConfig.desactivationHour });
+    console.log("desactivationHour set to " + scheduleConfig.desactivationHour);
     res.redirect('/restricted');
 });
 
