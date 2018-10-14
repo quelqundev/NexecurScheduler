@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Calendrier</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="../src/clndr.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/moment.min.js"></script>
+    <script src="../src/clndr.js"></script>
+</head>
+
+<body>
+
+    <h1>Calendrier</h1>
+
+    <div class="container">
+        <div class="cal1"></div>
+    </div>
+
+    <p>Tous les jours sélectionnés (en vert) correspondent aux jours où l'alarme ne sera pas activée.
+        Par exemple, si vendredi est sélectionné, alors l'alarme ne sera pas armée pour la nuit de vendredi à samedi.
+        L'alarme est activée entre
+        <%- scheduleConfig.activationHour %> et
+        <%- scheduleConfig.desactivationHour %>
+    </p>
+
+    <div>
+        <h6>Configuration des heures</h6>
+
+        <div>Activation :
+            <select id="activationhourSelect">
+                <% let hours = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23]; hours.forEach(function(hour) { %>
+                <option value="<%= hour %>">
+                    <%= hour %>
+                </option>
+                <% }); %>
+            </select>
+        </div>
+
+        <div>Désactivation :
+            <select id="desactivationhourSelect">
+                <% hours.forEach(function(hour) { %>
+                <option value="<%= hour %>">
+                    <%= hour %>
+                </option>
+                <% }); %>
+            </select>
+        </div>
+    </div>
+
+
+    <script>
+        // Call this from the developer console and you can control both instances
+        var calendars = {};
+        moment.locale('fr');
+        $(document).ready(function () {
+            // Here's some magic to make sure the dates are happening this month.
+            var thisMonth = moment().format('YYYY-MM');
+            // Events to load into calendar
+            var eventArray = [];
+            var arrayDates = <%- JSON.stringify(arrayDates) %>;
+            arrayDates.forEach(function (noplanningdate) {
+                eventArray.push(noplanningdate);
+            });
+
+            // The order of the click handlers is predictable. Direct click action
+            // callbacks come first: click, nextMonth, previousMonth, nextYear,
+            // previousYear, nextInterval, previousInterval, or today. Then
+            // onMonthChange (if the month changed), inIntervalChange if the interval
+            // has changed, and finally onYearChange (if the year changed).
+            calendars.clndr1 = $('.cal1').clndr({
+                weekOffset: 1,
+                events: eventArray,
+                clickEvents: {
+                    click: function (target) {
+                        console.log('Cal-1 clicked: ', target);
+                        var date = target.date._i;
+                        var alreadyChecked = false;
+                        eventArray.forEach(function (currentValue) {
+                            if (currentValue.date == date) {
+                                alreadyChecked = true;
+                            }
+                        })
+                        if (alreadyChecked) {
+                            post('/deletedate', { date: target.date._i });
+                        } else {
+                            post('/date', { date: target.date._i });
+                        }
+                    }
+                },
+                multiDayEvents: {
+                    singleDay: 'date',
+                    endDate: 'endDate',
+                    startDate: 'startDate'
+                },
+                showAdjacentMonths: true,
+                adjacentDaysChangeMonth: false,
+            });
+
+            // Bind all clndrs to the left and right arrow keys
+            $(document).keydown(function (e) {
+                // Left arrow
+                if (e.keyCode == 37) {
+                    calendars.clndr1.back();
+                }
+
+                // Right arrow
+                if (e.keyCode == 39) {
+                    calendars.clndr1.forward();
+                }
+            });
+
+            //Bind select events
+            $("#activationhourSelect").change(function activationhourChange(event) {
+                post('/activationhour', { activationhour: event.target.value });
+            });
+            $("#desactivationhourSelect").change(function desactivationhourChange(event) {
+                post('/desactivationhour', { desactivationhour: event.target.value });
+            });
+        });
+
+
+
+        /**
+         * sends a request to the specified url from a form. this will change the window location.
+         * @param {string} path the path to send the post request to
+         * @param {object} params the paramiters to add to the url
+         * @param {string} [method=post] the method to use on the form
+         * Thanks https://stackoverflow.com/questions/133925/javascript-post-request-like-a-form-submit
+         */
+
+        function post(path, params, method) {
+            method = method || "post"; // Set method to post by default if not specified.
+
+            // The rest of this code assumes you are not using a library.
+            // It can be made less wordy if you use one.
+            var form = document.createElement("form");
+            form.setAttribute("method", method);
+            form.setAttribute("action", path);
+
+            for (var key in params) {
+                if (params.hasOwnProperty(key)) {
+                    var hiddenField = document.createElement("input");
+                    hiddenField.setAttribute("type", "hidden");
+                    hiddenField.setAttribute("name", key);
+                    hiddenField.setAttribute("value", params[key]);
+
+                    form.appendChild(hiddenField);
+                }
+            }
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+    </script>
+
+
+
+</body>
+
+</html>
