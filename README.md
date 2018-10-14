@@ -23,6 +23,16 @@ Please note that this configuration is just used at launch time and can be modif
 
 6. `npm start` to run the script
 
+# Notes
+
+Some specific use cases are detailed below :
+
+- you can activate the alarm before the activation hour, it will work as usual : the alarm will be disabled at next desactivation job, following scheduling.
+
+- you can desactivate the alarm before the desactivation job.
+
+- to activate/desactivate your alarm for many days and dont follow the scheduling during this period : add today as an exception date and following days defining the period, and then activate the alarm.
+
 ## License
 
 MIT License

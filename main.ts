@@ -61,7 +61,7 @@ let activationSchedule = schedule.scheduleJob({ hour: scheduleConfig.activationH
                 break;
             case AlarmStatus.Enabled:
                 console.log('Alarm ENABLED');
-                //Specific case : alarm already enabled
+                //Specific case : alarm already enabled but consider it as normal
                 break;
             default:
                 //error : status is not an AlarmStatus
@@ -72,8 +72,10 @@ let activationSchedule = schedule.scheduleJob({ hour: scheduleConfig.activationH
     //determine if we should activate alarm today or not
     NoplanningDate.isTodayANoplanningDate((isANoplanningDate: boolean) => {
         if (isANoplanningDate == true) {
-            //we should not activate the security system
+            //we should not activate the security system...
             console.log("Today is an exception, dont activate alarm");
+            //...and then dont desactivate it next time
+            desactivationSchedule.cancelNext();
         } else {
             //Check system status before trying to enable
             console.log('Checking alarm status...');
