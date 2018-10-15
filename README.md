@@ -14,10 +14,9 @@ This package aims at scheduling repetitive activation and desactivation of Nexec
 
 Please note that this configuration is just used at launch time and can be modified by runtime configuration through API.
 
-4. Configure the `config.json` file in the Nexecur-Unofficial-API directory. You should provide the following values:
-- `id_site`
-- `password` (hash)
-- `pin` (hash)
+4. Configure the `config.json` file in the Nexecur-Unofficial-API directory. You should provide the following values :
+- `id_site` (also called wiring code)
+- `password` (also called PIN)
 
 5. Configure users id and password in the `users.json` file.
 
