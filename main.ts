@@ -171,8 +171,8 @@ app.use(function (req, res, next) {
     delete req.session.error;
     delete req.session.success;
     res.locals.message = '';
-    if (err) res.locals.message = '<p class="msg error">' + err + '</p>';
-    if (msg) res.locals.message = '<p class="msg success">' + msg + '</p>';
+    if (err) res.locals.message = 'invalid';
+    if (msg) res.locals.message = msg;
     next();
 });
 
@@ -243,14 +243,11 @@ app.post('/login', function (req, res) {
                 // in the session store to be retrieved,
                 // or in this case the entire user object
                 req.session.user = user;
-                req.session.success = 'Authenticated as ' + user.name
-                    + ' click to <a href="/logout">logout</a>. '
-                    + ' You may now access <a href="/restricted">/restricted</a>.';
+                req.session.success = 'Authentifié comme ' + user.name;
                 res.redirect('/restricted');
             });
         } else {
-            req.session.error = 'Erreurs lors de la connexion. Vérifiez votre '
-                + ' nom d\'utilisateur et/ou mot de passe.';
+            req.session.error = true;
             res.redirect('/login');
         }
     });
