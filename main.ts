@@ -4,6 +4,7 @@ import { DatabaseContext } from "./Models/DatabaseContext";
 import { NoplanningDate } from "./Models/NoplanningDate";
 import { UserDatabase } from "./Models/UserDatabase";
 import { Configuration } from "./Models/Configuration";
+import { SMSAlert } from "./Models/SMSAlert";
 
 /******************************************************************************/
 /*                              TASK SCHEDULER                                */
@@ -11,6 +12,8 @@ import { Configuration } from "./Models/Configuration";
 
 //https://github.com/node-schedule/node-schedule/blob/master/README.md
 var schedule = require('node-schedule');
+
+new SMSAlert();//prepare SMSAlerts
 
 //https://www.npmjs.com/package/simple-node-logger
 // const opts = {
@@ -39,7 +42,7 @@ let activationSchedule = schedule.scheduleJob({ hour: scheduleConfig.activationH
             case AlarmStatus.Disabled:
                 console.log('Alarm DISABLED');
                 //error : alarm is still not enabled
-                return;
+                SMSAlert.sendSMSAlert("ACTIVATION ECHOUEE a " + scheduleConfig.activationHour + "h. Alarme encore DESACTIVEE.");
                 break;
             default:
                 //error : status is not an AlarmStatus
@@ -99,7 +102,7 @@ let desactivationSchedule = schedule.scheduleJob({ hour: scheduleConfig.desactiv
             case AlarmStatus.Enabled:
                 console.log('Alarm still ENABLED...');
                 //error : alarm is still enabled
-                return;
+                SMSAlert.sendSMSAlert("URGENT ! DESACTIVATION ECHOUEE a " + scheduleConfig.desactivationHour + "h. Alarme encore ACTIVEE. Veuillez utiliser l'application Mon Nexecur pour desarmer.");
                 break;
             default:
                 //error : status is not an AlarmStatus
