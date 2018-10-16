@@ -20,7 +20,9 @@ Please note that this configuration is just used at launch time and can be modif
 
 5. Configure users id and password in the `users.json` file.
 
-6. `npm start` to run the script
+6. Configure free account id and key in the `smsconfig.json` file : `{"id":13245678,"key": "examplekey"}`
+
+7. `npm start` to run the script
 
 # Notes
 
