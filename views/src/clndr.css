@@ -24,30 +24,7 @@ html[xmlns] .clearfix {
   -ms-user-select: none;
   /* IE10+ */
 }
-h4 {
-  width: 75%;
-  text-align: center;
-  font-family: 'Droid Sans Mono';
-  font-weight: normal;
-  color: white;
-  font-size: 14px;
-  margin: 0 auto 1em auto;
-  padding: 1em;
-  background: #b63642;
-}
-h5 {
-  font-size: 1em;
-  font-weight: bold;
-}
-p {
-  text-align: center;
-  font-family: 'Droid Sans Mono';
-  margin: 3em auto 1em auto;
-  padding-top: 0.5em;
-  padding-bottom: 0.5em;
-  border-bottom: 2px solid #414141;
-  background: #f4f4f4;
-}
+
 .left-align {
   text-align: left;
 }
@@ -55,10 +32,7 @@ p {
   text-align: right;
 }
 .cal1 {
-  margin: 30px auto;
-  max-width: 600px;
-  font-family: 'Droid Sans Mono';
-  font-size: 14px;
+  font-size: 18px;
 }
 .cal1 .clndr .clndr-controls {
   display: inline-block;
@@ -124,7 +98,7 @@ p {
 .cal1 .clndr .clndr-table .header-days {
   height: 30px;
   font-size: 10px;
-  background: #0D70A6;
+  background: #2196f3;
 }
 .cal1 .clndr .clndr-table .header-days .header-day {
   vertical-align: middle;
@@ -181,7 +155,7 @@ p {
 .cal1 .clndr .clndr-table tr .day .day-contents {
   box-sizing: border-box;
   padding: 8px;
-  font-size: 12px;
+  font-size: 14px;
   text-align: right;
 }
 .cal1 .clndr .clndr-table tr .empty,
