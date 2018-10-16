@@ -4,3 +4,11 @@ package-lock.json
 
 #ignore logs files
 /logs
+
+#ignore JS files
+*.js
+#exception for static files
+!/views/src/*
+
+#ignore database
+database.db

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Authentication</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="../src/favicon.ico"> 
+  <style>
+    body {
+      padding: 50px;
+      font: 13px Helvetica, Arial, sans-serif;
+    }
+    .error {
+      color: red
+    }
+    .success {
+      color: green;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Connexion</h1>
+<%- message %>
+<a>Connectez-vous pour accéder au calendrier</a>.
+<form method="post" action="/login">
+  <p>
+    <label>Utilisateur:</label>
+    <input type="text" name="username">
+  </p>
+  <p>
+    <label>Mot de passe:</label>
+    <input type="text" name="password">
+  </p>
+  <p>
+    <input type="submit" value="Connexion">
+  </p>
+</form>
+
+</body>
+</html>
