@@ -15,15 +15,14 @@ var schedule = require('node-schedule');
 
 new SMSAlert();//prepare SMSAlerts
 
-//https://www.npmjs.com/package/simple-node-logger
-// const opts = {
-//   errorEventName:'error',
-//   logDirectory:'./logs', // NOTE: folder must exist and be writable...
-//   fileNamePattern:'roll-<DATE>.log',
-//   dateFormat:'YYYY.MM'
-// };
-// const log = require('simple-node-logger').createRollingFileLogger( opts );
-// log.info('Alarme activée');  //trace, debug, info, warn, error and fatal
+// https://www.npmjs.com/package/simple-node-logger
+const opts = {
+  errorEventName:'error',
+  logDirectory:'./logs', // NOTE: folder must exist and be writable...
+  fileNamePattern:'roll-<DATE>.log',
+  dateFormat:'YYYY.MM'
+};
+const log = require('simple-node-logger').createRollingFileLogger( opts );
 
 var scheduleConfig: Configuration = require('./config.json');
 scheduleConfig.activationHour = scheduleConfig.activationHour || 21;
@@ -33,15 +32,18 @@ scheduleConfig.desactivationHour = scheduleConfig.desactivationHour || 6;
  * Alarm activation task
  */
 let activationSchedule = schedule.scheduleJob({ hour: scheduleConfig.activationHour }, function () {
+    log.info("--- Activation schedule start ---");
 
     let postcheckCallback = (status: AlarmStatus) => {
         switch (status) {
             case AlarmStatus.Enabled:
                 console.log('Alarme ENABLED');
+                log.info('Activation reussie !');
                 break;
             case AlarmStatus.Disabled:
                 console.log('Alarm DISABLED');
                 //error : alarm is still not enabled
+                log.info('  Activation echouee !');
                 SMSAlert.sendSMSAlert("ACTIVATION ECHOUEE a " + scheduleConfig.activationHour + "h. Alarme encore DESACTIVEE.");
                 break;
             default:
@@ -60,10 +62,15 @@ let activationSchedule = schedule.scheduleJob({ hour: scheduleConfig.activationH
         switch (status) {
             case AlarmStatus.Disabled:
                 console.log('Alarm DISABLED');
-                enableCallback();
+                log.debug(' Alarm DISABLED');
+                //Try to enable alarm
+                console.log('Trying to enable alarm...');
+                log.info('  Trying to enable alarm...');
+                NexecurAPI.enableAlarm(enableCallback);
                 break;
             case AlarmStatus.Enabled:
                 console.log('Alarm ENABLED');
+                log.debug(' Alarm ENABLED');
                 //Specific case : alarm already enabled but consider it as normal
                 break;
             default:
@@ -74,14 +81,17 @@ let activationSchedule = schedule.scheduleJob({ hour: scheduleConfig.activationH
 
     //determine if we should activate alarm today or not
     NoplanningDate.isTodayANoplanningDate((isANoplanningDate: boolean) => {
+        log.debug("  isANoplanningDate : " + isANoplanningDate);
         if (isANoplanningDate == true) {
             //we should not activate the security system...
             console.log("Today is an exception, dont activate alarm");
+            log.info("  cancel next desactivationSchedule");
             //...and then dont desactivate it next time
             desactivationSchedule.cancelNext();
         } else {
             //Check system status before trying to enable
             console.log('Checking alarm status...');
+            log.info("  checking alarm status...");
             NexecurAPI.getAlarmStatus(precheckCallback);
         }
     });
@@ -120,8 +130,8 @@ let desactivationSchedule = schedule.scheduleJob({ hour: scheduleConfig.desactiv
         switch (status) {
             case AlarmStatus.Enabled:
                 console.log('Alarme ENABLED');
-                //Try to enable alarm
-                console.log('Trying to activate alarm...');
+                //Try to disable alarm
+                console.log('Trying to desactivate alarm...');
                 NexecurAPI.disableAlarm(disableCallback);
                 break;
             case AlarmStatus.Disabled:

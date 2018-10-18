@@ -3,7 +3,7 @@
 package-lock.json
 
 #ignore logs files
-/logs
+/logs/*.log
 
 #ignore JS files
 *.js
