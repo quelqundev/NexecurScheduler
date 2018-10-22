@@ -37,12 +37,16 @@ let activationSchedule = schedule.scheduleJob({ hour: scheduleConfig.activationH
     let postcheckCallback = (status: AlarmStatus) => {
         switch (status) {
             case AlarmStatus.Enabled:
-                console.log('Alarme ENABLED');
-                log.info('Activation reussie !');
+                console.log('Alarm state : ENABLED');
+                log.debug('  Alarm state : ENABLED');
+                console.log('Activation reussie !');
+                log.info('  Activation reussie !');
                 break;
             case AlarmStatus.Disabled:
-                console.log('Alarm DISABLED');
                 //error : alarm is still not enabled
+                console.log('Alarm state : DISABLED');
+                log.debug('  Alarm state : DISABLED');
+                console.log('Activation echouee !');
                 log.info('  Activation echouee !');
                 SMSAlert.sendSMSAlert("ACTIVATION ECHOUEE a " + scheduleConfig.activationHour + "h. Alarme encore DESACTIVEE.");
                 break;
@@ -50,6 +54,7 @@ let activationSchedule = schedule.scheduleJob({ hour: scheduleConfig.activationH
                 //error : status is not an AlarmStatus
                 break;
         }
+        log.info("--- Activation schedule end ---");
     };
 
     let enableCallback = () => {
@@ -61,16 +66,16 @@ let activationSchedule = schedule.scheduleJob({ hour: scheduleConfig.activationH
     let precheckCallback = ((status: AlarmStatus) => {
         switch (status) {
             case AlarmStatus.Disabled:
-                console.log('Alarm DISABLED');
-                log.debug(' Alarm DISABLED');
+                console.log('Alarm state : DISABLED');
+                log.debug(' Alarm state : DISABLED');
                 //Try to enable alarm
                 console.log('Trying to enable alarm...');
-                log.info('  Trying to enable alarm...');
+                log.debug('  Trying to enable alarm...');
                 NexecurAPI.enableAlarm(enableCallback);
                 break;
             case AlarmStatus.Enabled:
-                console.log('Alarm ENABLED');
-                log.debug(' Alarm ENABLED');
+                console.log('Alarm state : ENABLED');
+                log.debug(' Alarm state : ENABLED');
                 //Specific case : alarm already enabled but consider it as normal
                 break;
             default:
@@ -85,13 +90,13 @@ let activationSchedule = schedule.scheduleJob({ hour: scheduleConfig.activationH
         if (isANoplanningDate == true) {
             //we should not activate the security system...
             console.log("Today is an exception, dont activate alarm");
-            log.info("  cancel next desactivationSchedule");
+            log.info("  Today is an exception, dont activate alarm");
             //...and then dont desactivate it next time
             desactivationSchedule.cancelNext();
         } else {
             //Check system status before trying to enable
             console.log('Checking alarm status...');
-            log.info("  checking alarm status...");
+            log.debug("  checking alarm status...");
             NexecurAPI.getAlarmStatus(precheckCallback);
         }
     });
@@ -103,14 +108,19 @@ let activationSchedule = schedule.scheduleJob({ hour: scheduleConfig.activationH
  * Alarm desactivation task
  */
 let desactivationSchedule = schedule.scheduleJob({ hour: scheduleConfig.desactivationHour }, function () {
+    log.info("--- Desactivation schedule start ---");
 
     let postcheckCallback = (status: AlarmStatus) => {
         switch (status) {
             case AlarmStatus.Disabled:
-                console.log('Alarm DISABLED');
+                console.log('Alarm state : DISABLED');
+                log.debug(' Alarm state : DISABLED');
+                log.info(' Desactivation reussie !');
                 break;
             case AlarmStatus.Enabled:
-                console.log('Alarm still ENABLED...');
+                console.log('Alarm state : ENABLED');
+                log.debug(' Alarm state : ENABLED');
+                log.info(' Desactivation echouee...');
                 //error : alarm is still enabled
                 SMSAlert.sendSMSAlert("URGENT ! DESACTIVATION ECHOUEE a " + scheduleConfig.desactivationHour + "h. Alarme encore ACTIVEE. Veuillez utiliser l'application Mon Nexecur pour desarmer.");
                 break;
@@ -118,24 +128,29 @@ let desactivationSchedule = schedule.scheduleJob({ hour: scheduleConfig.desactiv
                 //error : status is not an AlarmStatus
                 break;
         }
+        log.info("--- Desactivation schedule end ---");
     };
 
     let disableCallback = () => {
         //Check system status after the try
         console.log('Checking alarm status...');
+        log.debug(' Checking alarm status');
         NexecurAPI.getAlarmStatus(postcheckCallback);
     };
 
     let precheckCallback = ((status: AlarmStatus) => {
         switch (status) {
             case AlarmStatus.Enabled:
-                console.log('Alarme ENABLED');
+                console.log('Alarm state : ENABLED');
+                log.debug(' Alarm state : ENABLED');
                 //Try to disable alarm
                 console.log('Trying to desactivate alarm...');
+                log.debug(' Trying to desactivate alarm...');
                 NexecurAPI.disableAlarm(disableCallback);
                 break;
             case AlarmStatus.Disabled:
-                console.log('Alarm already DISABLED');
+                console.log('Alarm state : DISABLED');
+                log.debug(' Alarm state : DISABLED');
                 //Specific case : alarm already disabled
                 break;
             default:
@@ -146,6 +161,7 @@ let desactivationSchedule = schedule.scheduleJob({ hour: scheduleConfig.desactiv
 
     //Check system status before trying to enable
     console.log('Checking alarm status...');
+    log.debug(' Checking alarm status');
     NexecurAPI.getAlarmStatus(precheckCallback);
 });
 
