@@ -4,51 +4,67 @@
 <head>
     <title>Calendrier</title>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="../src/favicon.ico">
     <link rel="stylesheet" href="../src/clndr.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/moment.min.js"></script>
-    <script src="../src/clndr.js"></script>
+    <script src="../src/clndr.min.js"></script>
+    <!--Import Google Icon Font-->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!--Import materialize.css-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+
+    <!--Let browser know website is optimized for mobile-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 </head>
 
 <body>
 
-    <h1>Calendrier</h1>
+<div class="container">
 
-    <div class="container">
+    <h1 class="header center blue-text">Calendrier</h1>
+
+
+    <div class="card-panel">
         <div class="cal1"></div>
     </div>
 
-    <p>Tous les jours sélectionnés (en vert) correspondent aux jours où l'alarme ne sera pas activée.
+    <ul class="collapsible hoverable">
+        <li>
+            <div class="collapsible-header"><i class="material-icons">infos</i>Fonctionnement</div>
+            <div class="collapsible-body"><span>
+                    Tous les jours sélectionnés (en vert) correspondent aux jours où l'alarme ne sera pas activée.
         Par exemple, si vendredi est sélectionné, alors l'alarme ne sera pas armée pour la nuit de vendredi à samedi.
         L'alarme est activée entre
-        <%- scheduleConfig.activationHour %> et
-        <%- scheduleConfig.desactivationHour %>
-    </p>
+                    <%- scheduleConfig.activationHour %>h et
+                    <%- scheduleConfig.desactivationHour %>h (pour les jours sélectionnés).
+                </span></div>
+        </li>
+    </ul>
 
-    <div>
+    <div class="card-panel">
+        <div style="margin-bottom: 30px">
         <h6>Configuration des heures</h6>
-
-        <div>Activation :
-            <select id="activationhourSelect">
-                <% let hours = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23]; hours.forEach(function(hour) { %>
-                <option value="<%= hour %>">
-                    <%= hour %>
-                </option>
-                <% }); %>
-            </select>
         </div>
+        <div class="row">
+            <div class="input-field col s12 m6">
+                <select id="activationhourSelect">
+                    <% let hours = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23]; hours.forEach(function(hour) { %>
+                    <option value="<%= hour %>"<% if(hour == scheduleConfig.activationHour) {%> selected<%} %>><%= hour %></option>
+                    <% }); %>
+                </select>
+                <label>Heure d'activation</label>
+            </div>
 
-        <div>Désactivation :
-            <select id="desactivationhourSelect">
-                <% hours.forEach(function(hour) { %>
-                <option value="<%= hour %>">
-                    <%= hour %>
-                </option>
-                <% }); %>
-            </select>
+            <div class="input-field col s12 m6">
+                <select id="desactivationhourSelect">
+                    <% hours.forEach(function(hour) { %>
+                    <option value="<%= hour %>"<% if(hour == scheduleConfig.desactivationHour) {%> selected<%} %>><%= hour %></option>
+                    <% }); %>
+                </select>
+                <label>Heure de désactivation</label>
+            </div>
         </div>
     </div>
 
@@ -121,6 +137,12 @@
             $("#desactivationhourSelect").change(function desactivationhourChange(event) {
                 post('/desactivationhour', { desactivationhour: event.target.value });
             });
+
+            $(document).ready(function(){
+                $('.collapsible').collapsible();
+                $('select').formSelect();
+            });
+            <% if(message) { %>M.toast({html: "<%= message %>"})<% } %>
         });
 
 
@@ -158,8 +180,9 @@
         }
     </script>
 
+</div>
 
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 </body>
 
 </html>
