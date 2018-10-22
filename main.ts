@@ -14,8 +14,6 @@ import { Log } from "./Models/LogUtil";
 //https://github.com/node-schedule/node-schedule/blob/master/README.md
 var schedule = require('node-schedule');
 
-new SMSAlert();//prepare SMSAlerts
-
 var scheduleConfig: Configuration = require('./config.json');
 scheduleConfig.activationHour = scheduleConfig.activationHour || 21;
 scheduleConfig.desactivationHour = scheduleConfig.desactivationHour || 6;
@@ -36,7 +34,7 @@ let activationSchedule = schedule.scheduleJob({ hour: scheduleConfig.activationH
                 //error : alarm is still not enabled
                 Log.debug('  Alarm state : DISABLED');
                 Log.info('  Activation echouee !');
-                SMSAlert.sendSMSAlert("ACTIVATION ECHOUEE a " + scheduleConfig.activationHour + "h. Alarme encore DESACTIVEE.");
+                SMSAlert.sendSMSAlert(`ACTIVATION ECHOUEE a ${scheduleConfig.activationHour}h. Alarme encore DESACTIVEE.`);
                 break;
             default:
                 //error : status is not an AlarmStatus
@@ -103,7 +101,7 @@ let desactivationSchedule = schedule.scheduleJob({ hour: scheduleConfig.desactiv
                 Log.debug(' Alarm state : ENABLED');
                 Log.info(' Desactivation echouee...');
                 //error : alarm is still enabled
-                SMSAlert.sendSMSAlert("URGENT ! DESACTIVATION ECHOUEE a " + scheduleConfig.desactivationHour + "h. Alarme encore ACTIVEE. Veuillez utiliser l'application Mon Nexecur pour desarmer.");
+                SMSAlert.sendSMSAlert(`URGENT ! DESACTIVATION ECHOUEE a ${scheduleConfig.desactivationHour}h. Alarme encore ACTIVEE. Veuillez utiliser l'application Mon Nexecur pour desarmer.`);
                 break;
             default:
                 //error : status is not an AlarmStatus
