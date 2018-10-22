@@ -5,6 +5,7 @@ import { NoplanningDate } from "./Models/NoplanningDate";
 import { UserDatabase } from "./Models/UserDatabase";
 import { Configuration } from "./Models/Configuration";
 import { SMSAlert } from "./Models/SMSAlert";
+import { Log } from "./Models/LogUtil";
 
 /******************************************************************************/
 /*                              TASK SCHEDULER                                */
@@ -15,15 +16,6 @@ var schedule = require('node-schedule');
 
 new SMSAlert();//prepare SMSAlerts
 
-// https://www.npmjs.com/package/simple-node-logger
-const opts = {
-  errorEventName:'error',
-  logDirectory:'./logs', // NOTE: folder must exist and be writable...
-  fileNamePattern:'roll-<DATE>.log',
-  dateFormat:'YYYY.MM'
-};
-const log = require('simple-node-logger').createRollingFileLogger( opts );
-
 var scheduleConfig: Configuration = require('./config.json');
 scheduleConfig.activationHour = scheduleConfig.activationHour || 21;
 scheduleConfig.desactivationHour = scheduleConfig.desactivationHour || 6;
@@ -32,50 +24,43 @@ scheduleConfig.desactivationHour = scheduleConfig.desactivationHour || 6;
  * Alarm activation task
  */
 let activationSchedule = schedule.scheduleJob({ hour: scheduleConfig.activationHour }, function () {
-    log.info("--- Activation schedule start ---");
+    Log.info("--- Activation schedule start ---");
 
     let postcheckCallback = (status: AlarmStatus) => {
         switch (status) {
             case AlarmStatus.Enabled:
-                console.log('Alarm state : ENABLED');
-                log.debug('  Alarm state : ENABLED');
-                console.log('Activation reussie !');
-                log.info('  Activation reussie !');
+                Log.debug('  Alarm state : ENABLED');
+                Log.info('  Activation reussie !');
                 break;
             case AlarmStatus.Disabled:
                 //error : alarm is still not enabled
-                console.log('Alarm state : DISABLED');
-                log.debug('  Alarm state : DISABLED');
-                console.log('Activation echouee !');
-                log.info('  Activation echouee !');
+                Log.debug('  Alarm state : DISABLED');
+                Log.info('  Activation echouee !');
                 SMSAlert.sendSMSAlert("ACTIVATION ECHOUEE a " + scheduleConfig.activationHour + "h. Alarme encore DESACTIVEE.");
                 break;
             default:
                 //error : status is not an AlarmStatus
                 break;
         }
-        log.info("--- Activation schedule end ---");
+        Log.info("--- Activation schedule end ---");
     };
 
     let enableCallback = () => {
         //Check system status after the try
-        console.log('Checking alarm status...');
+        Log.debug('Checking alarm status...');
         NexecurAPI.getAlarmStatus(postcheckCallback);
     };
 
     let precheckCallback = ((status: AlarmStatus) => {
         switch (status) {
             case AlarmStatus.Disabled:
-                console.log('Alarm state : DISABLED');
-                log.debug(' Alarm state : DISABLED');
+                Log.debug(' Alarm state : DISABLED');
                 //Try to enable alarm
-                console.log('Trying to enable alarm...');
-                log.debug('  Trying to enable alarm...');
+                Log.debug('  Trying to enable alarm...');
                 NexecurAPI.enableAlarm(enableCallback);
                 break;
             case AlarmStatus.Enabled:
-                console.log('Alarm state : ENABLED');
-                log.debug(' Alarm state : ENABLED');
+                Log.debug(' Alarm state : ENABLED');
                 //Specific case : alarm already enabled but consider it as normal
                 break;
             default:
@@ -86,17 +71,15 @@ let activationSchedule = schedule.scheduleJob({ hour: scheduleConfig.activationH
 
     //determine if we should activate alarm today or not
     NoplanningDate.isTodayANoplanningDate((isANoplanningDate: boolean) => {
-        log.debug("  isANoplanningDate : " + isANoplanningDate);
+        Log.debug("  isANoplanningDate : " + isANoplanningDate);
         if (isANoplanningDate == true) {
             //we should not activate the security system...
-            console.log("Today is an exception, dont activate alarm");
-            log.info("  Today is an exception, dont activate alarm");
+            Log.info("  Today is an exception, dont activate alarm");
             //...and then dont desactivate it next time
             desactivationSchedule.cancelNext();
         } else {
             //Check system status before trying to enable
-            console.log('Checking alarm status...');
-            log.debug("  checking alarm status...");
+            Log.debug("  checking alarm status...");
             NexecurAPI.getAlarmStatus(precheckCallback);
         }
     });
@@ -108,19 +91,17 @@ let activationSchedule = schedule.scheduleJob({ hour: scheduleConfig.activationH
  * Alarm desactivation task
  */
 let desactivationSchedule = schedule.scheduleJob({ hour: scheduleConfig.desactivationHour }, function () {
-    log.info("--- Desactivation schedule start ---");
+    Log.info("--- Desactivation schedule start ---");
 
     let postcheckCallback = (status: AlarmStatus) => {
         switch (status) {
             case AlarmStatus.Disabled:
-                console.log('Alarm state : DISABLED');
-                log.debug(' Alarm state : DISABLED');
-                log.info(' Desactivation reussie !');
+                Log.debug(' Alarm state : DISABLED');
+                Log.info(' Desactivation reussie !');
                 break;
             case AlarmStatus.Enabled:
-                console.log('Alarm state : ENABLED');
-                log.debug(' Alarm state : ENABLED');
-                log.info(' Desactivation echouee...');
+                Log.debug(' Alarm state : ENABLED');
+                Log.info(' Desactivation echouee...');
                 //error : alarm is still enabled
                 SMSAlert.sendSMSAlert("URGENT ! DESACTIVATION ECHOUEE a " + scheduleConfig.desactivationHour + "h. Alarme encore ACTIVEE. Veuillez utiliser l'application Mon Nexecur pour desarmer.");
                 break;
@@ -128,29 +109,25 @@ let desactivationSchedule = schedule.scheduleJob({ hour: scheduleConfig.desactiv
                 //error : status is not an AlarmStatus
                 break;
         }
-        log.info("--- Desactivation schedule end ---");
+        Log.info("--- Desactivation schedule end ---");
     };
 
     let disableCallback = () => {
         //Check system status after the try
-        console.log('Checking alarm status...');
-        log.debug(' Checking alarm status');
+        Log.debug(' Checking alarm status');
         NexecurAPI.getAlarmStatus(postcheckCallback);
     };
 
     let precheckCallback = ((status: AlarmStatus) => {
         switch (status) {
             case AlarmStatus.Enabled:
-                console.log('Alarm state : ENABLED');
-                log.debug(' Alarm state : ENABLED');
+                Log.debug(' Alarm state : ENABLED');
                 //Try to disable alarm
-                console.log('Trying to desactivate alarm...');
-                log.debug(' Trying to desactivate alarm...');
+                Log.debug(' Trying to desactivate alarm...');
                 NexecurAPI.disableAlarm(disableCallback);
                 break;
             case AlarmStatus.Disabled:
-                console.log('Alarm state : DISABLED');
-                log.debug(' Alarm state : DISABLED');
+                Log.debug(' Alarm state : DISABLED');
                 //Specific case : alarm already disabled
                 break;
             default:
@@ -160,8 +137,7 @@ let desactivationSchedule = schedule.scheduleJob({ hour: scheduleConfig.desactiv
     });
 
     //Check system status before trying to enable
-    console.log('Checking alarm status...');
-    log.debug(' Checking alarm status');
+    Log.debug(' Checking alarm status');
     NexecurAPI.getAlarmStatus(precheckCallback);
 });
 
@@ -236,14 +212,14 @@ app.post('/deletedate', restrict, function (req, res) {
 app.post('/activationhour', restrict, function (req, res) {
     scheduleConfig.activationHour = req.body.activationhour || scheduleConfig.activationHour;
     activationSchedule.reschedule({ hour: scheduleConfig.activationHour });
-    console.log("activationHour set to " + scheduleConfig.activationHour);
+    Log.debug("activationHour set to " + scheduleConfig.activationHour);
     res.redirect('/restricted');
 });
 
 app.post('/desactivationhour', restrict, function (req, res) {
     scheduleConfig.desactivationHour = req.body.desactivationhour || scheduleConfig.desactivationHour;
     desactivationSchedule.reschedule({ hour: scheduleConfig.desactivationHour });
-    console.log("desactivationHour set to " + scheduleConfig.desactivationHour);
+    Log.debug("desactivationHour set to " + scheduleConfig.desactivationHour);
     res.redirect('/restricted');
 });
 
@@ -285,10 +261,10 @@ new UserDatabase().init(() => {
     //start server
     if (!module.parent) {
         app.listen(80);
-        console.log('Express started on port 80');
+        Log.info('Express started on port 80');
         //load Dates database
         DatabaseContext.createContext();
-        console.log('Database context created');
+        Log.info('Database context created');
     }
 });
 
