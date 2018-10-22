@@ -14,11 +14,11 @@ export class Log {
 
     static info (msg:string) {
         console.log(msg);
-        Log.info(msg);
+        Log.log.info(msg);
     }
 
     static debug (msg:string) {
         console.debug(msg);
-        Log.debug(msg);
+        Log.log.debug(msg);
     }
 }
