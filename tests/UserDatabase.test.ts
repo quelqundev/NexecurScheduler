@@ -4,10 +4,21 @@ var assert = require('assert');
 
 describe('UserDatabase tests', function () {
     describe('#authentification()', function () {
-        it('should accept correct authentification', function (done) {
-            new UserDatabase().init(()=>{
-                UserDatabase.authenticate("tj", "foobar", (err, user)=> {
-                    if (user){
+        it('should accept correct authentification of 1st user', function (done) {
+            new UserDatabase().init(() => {
+                UserDatabase.authenticate("tj", "foobar", (err, user) => {
+                    if (user) {
+                        done();
+                    } else {
+                        done(err);
+                    }
+                });
+            });
+        });
+        it('should accept correct authentification of 2nd user', function (done) {
+            new UserDatabase().init(() => {
+                UserDatabase.authenticate("tj2", "foobar2", (err, user) => {
+                    if (user) {
                         done();
                     } else {
                         done(err);
@@ -16,9 +27,9 @@ describe('UserDatabase tests', function () {
             });
         });
         it('should refuse incorrect authentification', function (done) {
-            new UserDatabase().init(()=>{
-                UserDatabase.authenticate("false", "false", (err, user)=> {
-                    if (user){
+            new UserDatabase().init(() => {
+                UserDatabase.authenticate("false", "false", (err, user) => {
+                    if (user) {
                         done(err);
                     } else {
                         done();
