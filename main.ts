@@ -16,3 +16,4 @@ let ts = new TaskScheduler(scheduleConfig);
 /*                              SERVER LAUNCH                                 */
 /******************************************************************************/
 let ws = new WebServer(ts);
+ws.start();
