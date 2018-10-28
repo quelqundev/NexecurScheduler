@@ -5,15 +5,23 @@ import { UserDatabase } from "./UserDatabase";
 import { DatabaseContext } from "./DatabaseContext";
 
 export class WebServer {
+    ts: TaskScheduler;
 
     constructor(ts: TaskScheduler) {
+        this.ts = ts;
+    }
+
+    /**
+     * Launch webserver
+     */
+    async start() {
         var express = require('express');
         var path = require('path');
         var session = require('express-session');
-        var app  = express();
+        var app = express();
 
         var appPath = path.join(__dirname, '..');
-        
+
         //Server configuration
         app.set('view engine', 'ejs');
         let viewPath = path.join(appPath, 'views');
@@ -87,10 +95,10 @@ export class WebServer {
                 res.redirect('/');
             });
         });
-        
+
         app.get('/restricted', restrict, function (req, res) {
             NoplanningDate.getAllNoplanningDates((err, noplanningdates) => {
-                res.render('restricted', { arrayDates: noplanningdates, scheduleConfig: ts.scheduleConfig });
+                res.render('restricted', { arrayDates: noplanningdates, scheduleConfig: this.ts.scheduleConfig });
             });
         });
 
@@ -109,28 +117,27 @@ export class WebServer {
         });
 
         app.post('/activationhour', restrict, function (req, res) {
-            ts.scheduleConfig.activationHour = req.body.activationhour || ts.scheduleConfig.activationHour;
-            ts.activationSchedule.reschedule({ hour: ts.scheduleConfig.activationHour });
-            Log.debug("activationHour set to " + ts.scheduleConfig.activationHour);
+            this.ts.scheduleConfig.activationHour = req.body.activationhour || this.ts.scheduleConfig.activationHour;
+            this.ts.activationSchedule.reschedule({ hour: this.ts.scheduleConfig.activationHour });
+            Log.debug("activationHour set to " + this.ts.scheduleConfig.activationHour);
             res.redirect('/restricted');
         });
 
         app.post('/desactivationhour', restrict, function (req, res) {
-            ts.scheduleConfig.desactivationHour = req.body.desactivationhour || ts.scheduleConfig.desactivationHour;
-            ts.desactivationSchedule.reschedule({ hour: ts.scheduleConfig.desactivationHour });
-            Log.debug("desactivationHour set to " + ts.scheduleConfig.desactivationHour);
+            this.ts.scheduleConfig.desactivationHour = req.body.desactivationhour || this.ts.scheduleConfig.desactivationHour;
+            this.ts.desactivationSchedule.reschedule({ hour: this.ts.scheduleConfig.desactivationHour });
+            Log.debug("desactivationHour set to " + this.ts.scheduleConfig.desactivationHour);
             res.redirect('/restricted');
         });
 
-        //load users database
-        new UserDatabase().init(() => {
-            //start server
-                app.listen(80);
-                Log.info('Express started on port 80');
-                //load Dates database
-                DatabaseContext.createContext();
-                Log.info('Database context created');
-        });
 
+        //load users database
+        await UserDatabase.init();
+        //start server
+        app.listen(80);
+        Log.info('Express started on port 80');
+        //load Dates database
+        DatabaseContext.createContext();
+        Log.info('Database context created');
     }
 }
