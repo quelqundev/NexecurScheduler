@@ -95,7 +95,7 @@ export class WebServer {
                 res.redirect('/');
             });
         });
-
+      
         app.get('/restricted', restrict, function (req, res) {
             NoplanningDate.getAllNoplanningDates((err, noplanningdates) => {
                 res.render('restricted', { arrayDates: noplanningdates, scheduleConfig: this.ts.scheduleConfig });
