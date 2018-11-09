@@ -4,6 +4,8 @@ import { AlarmStatus } from "../Nexecur-Unofficial-API/Models/AlarmStatus";
 import { SMSAlert } from "./SMSAlert";
 import { NexecurAPI } from "../Nexecur-Unofficial-API/Controllers/NexecurAPI";
 import { NoplanningDate } from "./NoplanningDate";
+import { UndefinedAPIError } from "../Nexecur-Unofficial-API/Models/Errors/UndefinedAPIError";
+import { OrderAlarmError } from "../Nexecur-Unofficial-API/Models/Errors/OrderAlarmError";
 
 /**
  * Class managing automatic tasking of alarm activation and desactivation based on Node-Schedule package :
@@ -23,7 +25,7 @@ export class TaskScheduler {
      */
     scheduleConfig;
 
-    constructor(scheduleConfig:Configuration) {
+    constructor(scheduleConfig: Configuration) {
         var schedule = require('node-schedule');
         this.scheduleConfig = scheduleConfig;
 
@@ -55,7 +57,11 @@ export class TaskScheduler {
             let enableCallback = () => {
                 //Check system status after the try
                 Log.debug('Checking alarm status...');
-                NexecurAPI.getAlarmStatus(postcheckCallback);
+                NexecurAPI.getAlarmStatus().then((res: AlarmStatus) => {
+                    postcheckCallback(res);
+                }).catch((err: UndefinedAPIError) => {
+                    Log.info(err.name + ' - ' + err.message)
+                });
             };
 
             let precheckCallback = ((status: AlarmStatus) => {
@@ -64,7 +70,11 @@ export class TaskScheduler {
                         Log.debug(' Alarm state : DISABLED');
                         //Try to enable alarm
                         Log.debug('  Trying to enable alarm...');
-                        NexecurAPI.enableAlarm(enableCallback);
+                        NexecurAPI.enableAlarm().then(() => {
+                            enableCallback();
+                        }).catch((err: OrderAlarmError) => {
+                            Log.info(err.name + ' - ' + err.message)
+                        });
                         break;
                     case AlarmStatus.Enabled:
                         Log.debug(' Alarm state : ENABLED');
@@ -87,7 +97,11 @@ export class TaskScheduler {
                 } else {
                     //Check system status before trying to enable
                     Log.debug("  checking alarm status...");
-                    NexecurAPI.getAlarmStatus(precheckCallback);
+                    NexecurAPI.getAlarmStatus().then((result: AlarmStatus) => {
+                        precheckCallback(result);
+                    }).catch((err: UndefinedAPIError) => {
+                        Log.info(err.name + ' - ' + err.message)
+                    });
                 }
             });
 
@@ -122,7 +136,11 @@ export class TaskScheduler {
             let disableCallback = () => {
                 //Check system status after the try
                 Log.debug(' Checking alarm status');
-                NexecurAPI.getAlarmStatus(postcheckCallback);
+                NexecurAPI.getAlarmStatus().then((result: AlarmStatus) => {
+                    postcheckCallback(result);
+                }).catch((err: UndefinedAPIError) => {
+                    Log.info(err.name + ' - ' + err.message)
+                });
             };
 
             let precheckCallback = ((status: AlarmStatus) => {
@@ -131,7 +149,11 @@ export class TaskScheduler {
                         Log.debug(' Alarm state : ENABLED');
                         //Try to disable alarm
                         Log.debug(' Trying to desactivate alarm...');
-                        NexecurAPI.disableAlarm(disableCallback);
+                        NexecurAPI.disableAlarm().then(() => {
+                            disableCallback();
+                        }).catch((err: OrderAlarmError) => {
+                            Log.info(err.name + ' - ' + err.message)
+                        });
                         break;
                     case AlarmStatus.Disabled:
                         Log.debug(' Alarm state : DISABLED');
@@ -145,7 +167,11 @@ export class TaskScheduler {
 
             //Check system status before trying to enable
             Log.debug(' Checking alarm status');
-            NexecurAPI.getAlarmStatus(precheckCallback);
+            NexecurAPI.getAlarmStatus().then((result: AlarmStatus) => {
+                precheckCallback(result);
+            }).catch((err: UndefinedAPIError) => {
+                Log.info(err.name + ' - ' + err.message)
+            });
         });
     }
 }
