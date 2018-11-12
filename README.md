@@ -1,5 +1,10 @@
 # Nexecur Scheduler
 
+![GitHub release](https://img.shields.io/github/release/quelqundev/NexecurScheduler.svg)
+![GitHub appveyor](https://img.shields.io/travis/com/quelqundev/NexecurScheduler.svg)
+[![GitHub issues](https://img.shields.io/github/issues/quelqundev/NexecurScheduler.svg)](https://github.com/quelqundev/NexecurScheduler/issues)
+[![GitHub license](https://img.shields.io/github/license/quelqundev/NexecurScheduler.svg)](https://github.com/quelqundev/NexecurScheduler)
+
 This package aims at scheduling repetitive activation and desactivation of Nexecur security system using [unofficial API](https://github.com/baudev/Nexecur-Unofficial-API).
 
 ## Installation
