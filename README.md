@@ -39,5 +39,9 @@ Some specific use cases are detailed below :
 
 - to activate/desactivate your alarm for many days and dont follow the scheduling during this period : add today as an exception date and following days defining the period, and then activate the alarm.
 
+# Screen
+
+![screen](screen.png)
+
 ### Legal
 This code is in no way affiliated with, authorized, maintained, sponsored or endorsed by Nexecur or any of its affiliates or subsidiaries. This is an independent and unofficial API. Use at your own risk.
