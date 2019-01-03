@@ -37,7 +37,7 @@ export class TaskScheduler {
         /**
          * Alarm desactivation task
          */
-        this.desactivationSchedule = schedule.scheduleJob({ hour: scheduleConfig.desactivationHour }, this.desactivationFunction);
+        this.desactivationSchedule = schedule.scheduleJob('*/10 ' + scheduleConfig.desactivationHour + ' * * *', this.desactivationFunction);
     }
 
     /**
