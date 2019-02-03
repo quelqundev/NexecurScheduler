@@ -5,8 +5,8 @@ export class Log {
     
     static opts = {
         errorEventName: 'error',
-        logDirectory: './logs', // NOTE: folder must exist and be writable...
-        fileNamePattern: 'roll-<DATE>.log',
+        logDirectory: '/var/log', // NOTE: folder must exist and be writable...
+        fileNamePattern: 'NEXECURSCHEDULER-<DATE>.log',
         dateFormat: 'YYYY.MM'
     };
 

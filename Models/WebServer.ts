@@ -19,6 +19,7 @@ export class WebServer {
         var path = require('path');
         var session = require('express-session');
         var app = express();
+	let self = this;
 
         var appPath = path.join(__dirname, '..');
 
@@ -95,10 +96,10 @@ export class WebServer {
                 res.redirect('/');
             });
         });
-      
+	
         app.get('/restricted', restrict, function (req, res) {
             NoplanningDate.getAllNoplanningDates((err, noplanningdates) => {
-                res.render('restricted', { arrayDates: noplanningdates, scheduleConfig: this.ts.scheduleConfig });
+                res.render('restricted', { arrayDates: noplanningdates, scheduleConfig: self.ts.scheduleConfig });
             });
         });
 
@@ -117,16 +118,16 @@ export class WebServer {
         });
 
         app.post('/activationhour', restrict, function (req, res) {
-            this.ts.scheduleConfig.activationHour = req.body.activationhour || this.ts.scheduleConfig.activationHour;
-            this.ts.activationSchedule.reschedule({ hour: this.ts.scheduleConfig.activationHour });
-            Log.debug("activationHour set to " + this.ts.scheduleConfig.activationHour);
+            self.ts.scheduleConfig.activationHour = req.body.activationhour || self.ts.scheduleConfig.activationHour;
+            self.ts.activationSchedule.reschedule({ hour: self.ts.scheduleConfig.activationHour });
+            Log.debug("activationHour set to " + self.ts.scheduleConfig.activationHour);
             res.redirect('/restricted');
         });
 
         app.post('/desactivationhour', restrict, function (req, res) {
-            this.ts.scheduleConfig.desactivationHour = req.body.desactivationhour || this.ts.scheduleConfig.desactivationHour;
-            this.ts.desactivationSchedule.reschedule({ hour: this.ts.scheduleConfig.desactivationHour });
-            Log.debug("desactivationHour set to " + this.ts.scheduleConfig.desactivationHour);
+            self.ts.scheduleConfig.desactivationHour = req.body.desactivationhour || self.ts.scheduleConfig.desactivationHour;
+            self.ts.desactivationSchedule.reschedule({ hour: self.ts.scheduleConfig.desactivationHour });
+            Log.debug("desactivationHour set to " + self.ts.scheduleConfig.desactivationHour);
             res.redirect('/restricted');
         });
 
