@@ -3,6 +3,8 @@ import { NoplanningDate } from "./NoplanningDate";
 import { Log } from "./LogUtil";
 import { UserDatabase } from "./UserDatabase";
 import { DatabaseContext } from "./DatabaseContext";
+import { AlarmStatus } from "../Nexecur-Unofficial-API/Models/AlarmStatus";
+import { NexecurAPI } from "../Nexecur-Unofficial-API/Controllers/NexecurAPI";
 
 export class WebServer {
     ts: TaskScheduler;
@@ -19,7 +21,7 @@ export class WebServer {
         var path = require('path');
         var session = require('express-session');
         var app = express();
-	let self = this;
+        let self = this;
 
         var appPath = path.join(__dirname, '..');
 
@@ -96,10 +98,32 @@ export class WebServer {
                 res.redirect('/');
             });
         });
-	
+
         app.get('/restricted', restrict, function (req, res) {
-            NoplanningDate.getAllNoplanningDates((err, noplanningdates) => {
-                res.render('restricted', { arrayDates: noplanningdates, scheduleConfig: self.ts.scheduleConfig });
+            let alarmStatus;
+            //check AlarmStatus
+            NexecurAPI.getAlarmStatus().then((as: AlarmStatus) => {
+                switch (as) {
+                    case AlarmStatus.Enabled:
+                        alarmStatus = "Activée";
+                        break;
+                    case AlarmStatus.Disabled:
+                        alarmStatus = "Désactivée";
+                        break;
+                    default:
+                        alarmStatus = "alarm status inconnu... :/";
+                        break;
+                }
+                //get planning dates
+                NoplanningDate.getAllNoplanningDates((err, noplanningdates) => {
+                    res.render('restricted', { arrayDates: noplanningdates, scheduleConfig: self.ts.scheduleConfig, alarmStatus: alarmStatus });
+                });
+            }).catch(errstatus => {
+                alarmStatus= "Erreur : alarmStatus inconnu...";
+                //get planning dates
+                NoplanningDate.getAllNoplanningDates((err, noplanningdates) => {
+                    res.render('restricted', { arrayDates: noplanningdates, scheduleConfig: self.ts.scheduleConfig, alarmStatus: errstatus });
+                });
             });
         });
 
